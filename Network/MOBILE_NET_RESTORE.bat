@@ -23,6 +23,7 @@ set "VALUE="
 set "KEY=HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"
 if /i "%STATE%"=="PRESENT" (
   reg add "%KEY%" /v DODownloadMode /t REG_DWORD /d %VALUE% /f
+  if errorlevel 1 goto :failed
 ) else if /i "%STATE%"=="ABSENT" (
   reg delete "%KEY%" /v DODownloadMode /f >nul 2>&1
 ) else (
@@ -30,11 +31,11 @@ if /i "%STATE%"=="PRESENT" (
   pause
   exit /b 1
 )
-if errorlevel 1 (
-  echo Не удалось восстановить параметр.
-  pause
-  exit /b 1
-)
 del "%BACKUP%" >nul 2>&1
 echo Исходное состояние параметра восстановлено.
 pause
+exit /b 0
+:failed
+echo Не удалось восстановить параметр. Резервная копия сохранена.
+pause
+exit /b 1
